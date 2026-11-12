@@ -1,0 +1,221 @@
+# Seguimiento de Trámites Académicos · Campus Virtual UNICA
+
+Prototipo de alta fidelidad del módulo **Seguimiento de Trámites Académicos** de
+la Universidad Nacional “San Luis Gonzaga” de Ica (UNICA). Implementa las
+Historias de Usuario **HU-01 a HU-04** de la especificación v2, con identidad
+visual naranja/blanco, sesión simulada del Campus Virtual y aislamiento estricto
+de datos por estudiante.
+
+## Demo rápida
+
+```bash
+npm install
+npm run dev
+```
+
+Abrir <http://localhost:3000> o la ruta del módulo:
+<http://localhost:3000/campusvirtual/mis-tramites>.
+
+La sesión activa simulada es:
+
+- **Estudiante:** Ana Lucia Mendoza
+- **Código universitario:** `20221045`
+- **Facultad:** Ingeniería de Sistemas - UNICA
+
+El botón **Cerrar sesión** muestra el flujo de salida del Campus Virtual y
+permite volver a ingresar con la sesión SSO simulada.
+
+### Casos de prueba incluidos
+
+| Caso | Entrada | Resultado esperado |
+| --- | --- | --- |
+| Listado propio | Ingreso al módulo | Se listan automáticamente los 4 trámites de Ana, sin datos de terceros |
+| En evaluación | `SOL-UNICA-2026-001` | Estado **En Evaluación**, área responsable, siguiente paso y última actualización |
+| Documentos pendientes | `SOL-UNICA-2026-003` | Banner ámbar, requisitos faltantes y zona de carga Drag & Drop |
+| Firma digital | `SOL-UNICA-2026-004` | Fase **Firma Digital** activa en el stepper |
+| Finalizado | `SOL-UNICA-2026-005` | Todas las fases completas y panel de entrega con descarga demo |
+| Solicitud ajena | `SOL-UNICA-2026-002` o `SOL-UNICA-2026-099` | Bloqueo **403** sin exponer datos de la otra cuenta |
+| Búsqueda por tipo | `Certificado` o `Constancia` | Filtra solo coincidencias propias |
+| Código inexistente | `SOL-000-XXXX` | Aviso **404** con el mensaje exacto de la especificación |
+| Falla del servicio | **Probar error 500** o interruptor de simulación | Pantalla de contingencia neutra con botón naranja **Reintentar** |
+
+El **Panel de pruebas · Sprint Review UNICA** permite cargar cada caso con un
+clic, buscar por tipo y activar/desactivar la caída simulada del servicio.
+
+### Mensajes exactos implementados
+
+- **403:** «Acceso restringido: Esta solicitud no pertenece a tu cuenta
+  institucional»
+- **404:** «No se encontró ninguna solicitud asociada a tu cuenta con ese
+  código»
+- **500:** «Servicio no disponible momentáneamente.» con acción **Reintentar**
+
+## Historias de Usuario implementadas
+
+| HU | Sprint | Implementación | Evidencia |
+| --- | --- | --- | --- |
+| **HU-01** Consultar trámites propios | 1 | Listado automático por `estudianteId`, búsqueda por código o tipo, 200/403/404/500 | `mock-api.test.ts`, `seguimiento-app.test.tsx` |
+| **HU-02** Área y siguiente paso | 1 | `TimelineStepper` con oficina responsable y acción esperada | `timeline.test.ts`, integración UI |
+| **HU-03** Documentos observados | 2 | Banner ámbar, requisitos y carga Drag & Drop con validación, progreso y subsanación | `useSeguimientoStore.test.ts`, integración UI |
+| **HU-04** Última actualización | 2 | Etiqueta visible «Última actualización: 12/11/2026, 11:20 AM» en las tarjetas | `format.test.ts`, integración UI |
+
+### Criterios de aceptación cubiertos
+
+- **1.1 Listado propio:** al ingresar se cargan solo los trámites de
+  `20221045`, con la paleta UNICA y sus estados.
+- **1.2 Acceso a solicitud ajena:** un código de otro estudiante devuelve 403 y
+  el mensaje exacto, sin datos del titular.
+- **1.3 Código inexistente:** se muestra el aviso 404 exacto, con opción para
+  volver al listado.
+- **1.4 Falla del servicio:** pantalla de contingencia en tonos neutros con
+  botón naranja **Reintentar**.
+- **2.1 Área y siguiente paso:** visible en cada detalle, junto con el stepper
+  de cuatro fases: Registrado, En Evaluación, Firma Digital y Listo para
+  Entrega.
+- **3.1 Subsanación:** alerta ámbar con los requisitos y carga de PDF/JPG/PNG.
+- **4.1 Fecha:** etiqueta compacta con el formato exigido por HU-04.
+
+## Seguridad y aislamiento de datos
+
+- La sesión simulada se gestiona con **Zustand** (`sesion`) e incluye
+  `estudianteId`, nombre, código, facultad y `tokenSimulado`.
+- El listado, la búsqueda y la subsanación se filtran siempre por
+  `estudianteId`.
+- Si el código existe pero pertenece a otra cuenta, la API responde **403**
+  antes de devolver cualquier datos.
+- Si el término no coincide con un trámite propio, responde **404**; no se
+  revela si el código existe en otra cuenta.
+- Al cerrar sesión se limpian solicitudes, selección, archivos y mensajes; el
+  módulo queda bloqueado hasta volver a ingresar.
+- La base ficticia incluye registros adicionales de demostración (`004` y
+  `005`, propios) y dos registros ajenos (`002` y `099`) para validar el
+  control de acceso.
+
+## Arquitectura
+
+| Capa | Tecnología |
+| --- | --- |
+| Framework | Next.js 16 (App Router) + React 19 |
+| Lenguaje | TypeScript 5 estricto |
+| Estilos | Tailwind CSS 4 + componentes estilo Shadcn UI |
+| Estado y sesión | Zustand 5 |
+| Iconografía | Lucide React |
+| Mocking | Módulo local con latencia y respuestas HTTP simuladas 200/403/404/500 |
+| Pruebas | Vitest 4 + Testing Library + jsdom |
+
+```text
+src/
+├── app/
+│   ├── campusvirtual/mis-tramites/page.tsx  # Ruta protegida del módulo
+│   ├── globals.css        # Tokens UNICA, fondo y animaciones
+│   ├── layout.tsx         # Metadatos, tipografía Inter y layout raíz
+│   └── page.tsx           # Entrada de demostración del Campus Virtual
+├── components/
+│   ├── layout/            # Header, footer, login simulado y composición del portal
+│   ├── states/            # Carga, vacío, 403, 404 y contingencia 500
+│   ├── ui/                # Button, Badge, Card, Input, Alert, Progress, Switch, Skeleton
+│   ├── demo-panel.tsx     # Casos de Sprint Review
+│   ├── documents-panel.tsx
+│   ├── document-upload-zone.tsx
+│   ├── entrega-panel.tsx
+│   ├── resultado-solicitud.tsx
+│   ├── search-form.tsx
+│   ├── seguimiento-app.tsx
+│   ├── solicitud-card.tsx
+│   ├── status-badge.tsx
+│   ├── status-card.tsx
+│   └── timeline-stepper.tsx
+├── lib/
+│   ├── estados.ts         # Metadatos visuales por estado
+│   ├── format.ts          # Fechas en español, formato corto y tamaños
+│   ├── mock-api.ts        # API segura, 403/404/500 y persistencia en memoria
+│   ├── mock-data.ts       # Sesión, base ficticia y casos de demo
+│   ├── timeline.ts        # Fases y avance del trámite
+│   ├── types.ts           # `EstudianteSesion` y `SolicitudUNICA`
+│   └── utils.ts           # `cn`
+└── store/
+    └── useSeguimientoStore.ts # Sesión, búsqueda, selección, adjuntos y subsanación
+```
+
+### Flujo de estados
+
+```text
+EN_EVALUACION          → fase actual: En Evaluación
+PENDIENTE_DOCUMENTOS   → evaluación observada + panel de documentos
+FIRMA_DIGITAL          → fase actual: Firma Digital
+FINALIZADO             → todas las fases completas + panel de entrega
+
+Subsanación exitosa    → EN_EVALUACION + documentos recibidos + timestamp actualizado
+```
+
+### Reglas de la carga de documentos
+
+- Formatos: PDF, JPG o PNG.
+- Tamaño máximo: 5 MB por archivo.
+- Se rechazan archivos vacíos y duplicados.
+- El progreso es simulado; no se envían datos reales.
+- La subsanación se habilita cuando todos los archivos están cargados.
+- La API vuelve a validar la titularidad antes de actualizar la solicitud.
+
+## Scripts
+
+```bash
+npm run dev        # Servidor de desarrollo
+npm run build      # Compilación de producción
+npm start          # Servidor de producción
+npm run lint       # ESLint
+npm test           # Pruebas automatizadas
+npx tsc --noEmit   # Verificación de tipos
+```
+
+## Pruebas automatizadas
+
+```text
+Test Files  5 passed (5)
+Tests       54 passed (54)
+```
+
+| Archivo | Cobertura |
+| --- | --- |
+| `src/lib/format.test.ts` | Fecha completa y compacta de HU-04, tiempo relativo y tamaños |
+| `src/lib/timeline.test.ts` | Cuatro fases, estado actual, firma digital y porcentajes |
+| `src/lib/mock-api.test.ts` | Listado propio, búsqueda por tipo, 403, 404, 500, persistencia y subsanación |
+| `src/store/useSeguimientoStore.test.ts` | Sesión, listado, filtros, selección, validaciones, progreso y cierre de sesión |
+| `src/components/seguimiento-app.test.tsx` | Integración UI: listado, 403, 404, 500, carga, entrega y login/logout |
+
+## Sprint y Kanban
+
+- **Sprint 1:** estructura del Campus Virtual, sesión, identidad UNICA, HU-01 y
+  HU-02.
+- **Sprint 2:** HU-03, HU-04, pruebas de aislamiento 403 y demostración final.
+
+| Columna | Límite WIP | Estado al cierre |
+| --- | --- | --- |
+| Por hacer | — | Sin elementos |
+| En curso | 2 | Sin elementos |
+| En revisión | 1 | Sin elementos |
+| Terminado | — | HU-01, HU-02, HU-03, HU-04 |
+
+Métricas observadas: WIP final `0`, throughput `4` historias, una iteración por
+historia y edad de elemento `0` para los elementos terminados.
+
+### Definición de Terminado
+
+- [x] Identidad visual UNICA naranja/blanco aplicada en todo el módulo.
+- [x] Código integrado y sin errores críticos (`build`, `lint` y `tsc`
+  exitosos).
+- [x] Listado y consultas limitados al `estudianteId` de la sesión.
+- [x] Intento de acceso a solicitud ajena verificado con 403.
+- [x] Casos exitosos, código inexistente y falla simulada probados con datos
+  ficticios.
+- [x] Evidencia demostrable en [`docs/sprint-review.md`](docs/sprint-review.md).
+
+## Limitaciones del prototipo
+
+- Los datos viven en memoria: recargar la página restaura la base ficticia.
+- No existe SSO ni backend real; la sesión y el token JWT son simulados.
+- La descarga de la constancia y la carga de archivos son simuladas.
+- El módulo es una demostración de validación UX, no un sistema de producción.
+
+Ver [`docs/sprint-review.md`](docs/sprint-review.md) para el guion completo y la
+matriz de evidencias.

@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-unica-orange: #ff6600;
+  --color-unica-orange-dark: #e65100;
+  --color-unica-orange-light: #fff7ed;
+  --color-unica-orange-border: #ffedd5;
+  --color-unica-bg: #f8f9fa;
+  --color-unica-text: #1e293b;
+  --color-unica-muted: #64748b;
+
+  --shadow-card:
+    0 1px 2px rgb(30 41 59 / 0.04), 0 10px 30px -18px rgb(30 41 59 / 0.2);
+  --shadow-float:
+    0 24px 60px -30px rgb(230 81 0 / 0.3), 0 4px 14px -8px rgb(30 41 59 / 0.12);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-soft-pulse: soft-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 102 0 / 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(255 102 0 / 0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-unica-bg text-slate-800 antialiased;
+  }
+
+  ::selection {
+    @apply bg-unica-orange-border text-unica-orange-dark;
+  }
+
+  :focus-visible {
+    @apply outline-unica-orange outline-2 outline-offset-2;
+  }
+}
+
+@layer utilities {
+  .unica-gradient {
+    background-image:
+      radial-gradient(
+        circle at 12% 20%,
+        rgb(255 255 255 / 0.16) 0,
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 88% 0%,
+        rgb(255 255 255 / 0.1) 0,
+        transparent 32%
+      ),
+      linear-gradient(
+        120deg,
+        var(--color-unica-orange) 0%,
+        var(--color-unica-orange-dark) 100%
+      );
+  }
+
+  .unica-grid {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, black, transparent 95%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .skeleton-shimmer {
+    background-image: linear-gradient(
+      90deg,
+      rgb(226 232 240 / 0.75) 0%,
+      rgb(248 250 252 / 0.95) 50%,
+      rgb(226 232 240 / 0.75) 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
