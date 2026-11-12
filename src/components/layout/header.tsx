@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   BookOpen,
   ChevronRight,
@@ -18,7 +20,7 @@ const NAVEGACION = [
   { etiqueta: "Mis Cursos", href: "#", Icono: BookOpen, activo: false },
   {
     etiqueta: "Mis Trámites",
-    href: "/campusvirtual/mis-tramites",
+    href: "/mis-tramites",
     Icono: FileText,
     activo: true,
   },
@@ -28,8 +30,19 @@ const NAVEGACION = [
 export function Header() {
   const sesion = useSeguimientoStore((state) => state.sesion);
   const cerrarSesion = useSeguimientoStore((state) => state.cerrarSesion);
+  const pathname = usePathname();
 
   if (!sesion) return null;
+
+  const enMisTramites =
+    pathname.startsWith("/mis-tramites") ||
+    pathname.startsWith("/campusvirtual/mis-tramites");
+
+  const navegacion = NAVEGACION.map((item) =>
+    item.etiqueta === "Mis Trámites"
+      ? { ...item, activo: enMisTramites }
+      : item,
+  );
 
   const iniciales = sesion.nombreCompleto
     .split(" ")
@@ -102,8 +115,8 @@ export function Header() {
           aria-label="Navegación del Campus Virtual"
           className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8"
         >
-          {NAVEGACION.map(({ etiqueta, href, Icono, activo }) => (
-            <a
+          {navegacion.map(({ etiqueta, href, Icono, activo }) => (
+            <Link
               key={etiqueta}
               href={href}
               aria-current={activo ? "page" : undefined}
@@ -116,7 +129,7 @@ export function Header() {
             >
               <Icono className="h-3.5 w-3.5" aria-hidden />
               {etiqueta}
-            </a>
+            </Link>
           ))}
 
           <div className="ml-auto hidden items-center gap-1.5 py-3 text-[10px] font-medium text-emerald-700 sm:flex">
@@ -149,13 +162,16 @@ export function Header() {
             aria-label="Ruta de navegación"
             className="flex items-center gap-1 text-[10px] text-white/80"
           >
-            <a href="#" className="transition-colors hover:text-white">
+            <Link href="/" className="transition-colors hover:text-white">
               Inicio
-            </a>
+            </Link>
             <ChevronRight className="h-3 w-3" aria-hidden />
-            <a href="#" className="transition-colors hover:text-white">
+            <Link
+              href="/mis-tramites"
+              className="transition-colors hover:text-white"
+            >
               Mis trámites
-            </a>
+            </Link>
             <ChevronRight className="h-3 w-3" aria-hidden />
             <span className="flex items-center gap-1 font-semibold text-white">
               <ShieldCheck className="h-3 w-3" aria-hidden />

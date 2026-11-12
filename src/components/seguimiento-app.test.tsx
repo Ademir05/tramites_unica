@@ -19,6 +19,7 @@ import {
 
 import { CampusPortal } from "@/components/layout/campus-portal";
 import { SeguimientoApp } from "@/components/seguimiento-app";
+import { parsearEstadoSimulado } from "@/lib/estados";
 import {
   MENSAJE_ACCESO_DENEGADO,
   MENSAJE_ERROR_SERVICIO,
@@ -26,6 +27,23 @@ import {
   resetMockData,
 } from "@/lib/mock-api";
 import { useSeguimientoStore } from "@/store/useSeguimientoStore";
+
+const navegacionMock = vi.hoisted(() => ({
+  push: vi.fn(),
+  pathname: "/mis-tramites",
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => navegacionMock.pathname,
+  useRouter: () => ({
+    push: navegacionMock.push,
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
@@ -35,6 +53,8 @@ beforeEach(() => {
   resetMockData();
   useSeguimientoStore.getState().iniciarSesion();
   useSeguimientoStore.setState({ simularFallo: false });
+  navegacionMock.push.mockClear();
+  navegacionMock.pathname = "/mis-tramites";
 });
 
 afterEach(() => {
@@ -274,6 +294,66 @@ describe("Campus Virtual UNICA · integración UI", () => {
     expect(
       screen.getAllByText("Firma digital y autorización del documento").length,
     ).toBeGreaterThan(0);
+  });
+
+  it("abre una ruta por trámite y muestra el detalle sin el buscador", async () => {
+    render(
+      <SeguimientoApp
+        codigoInicial="SOL-UNICA-2026-001"
+        simulacion={parsearEstadoSimulado('"FINALIZADO"')}
+      />,
+    );
+
+    expect(
+      await screen.findByText("Tu documento está listo"),
+    ).toBeTruthy();
+    expect(screen.getAllByText("Finalizado").length).toBeGreaterThan(0);
+    expect(screen.getByText(/estado simulado como/i)).toBeTruthy();
+    expect(
+      screen.queryByLabelText("Código de solicitud o tipo de trámite"),
+    ).toBeNull();
+  });
+
+  it("avisa cuando el query param STATUS no es válido", async () => {
+    render(
+      <SeguimientoApp
+        codigoInicial="SOL-UNICA-2026-001"
+        simulacion={parsearEstadoSimulado("NO_EXISTE")}
+      />,
+    );
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Consulta el avance de tu trámite",
+      }),
+    ).toBeTruthy();
+    expect(screen.getByText(/no es válido/i)).toBeTruthy();
+  });
+
+  it("resuelve la solicitud ajena al entrar por su ruta directa", async () => {
+    render(<SeguimientoApp codigoInicial="SOL-UNICA-2026-002" />);
+
+    expect(await screen.findByText(MENSAJE_ACCESO_DENEGADO)).toBeTruthy();
+    expect(screen.queryByText("Certificado de Notas")).toBeNull();
+  });
+
+  it("navega a la ruta del trámite al seleccionar una tarjeta", async () => {
+    render(<SeguimientoApp />);
+
+    const listado = await screen.findByRole("region", {
+      name: "Mis trámites",
+    });
+    const user = userEvent.setup();
+
+    await user.click(
+      within(listado).getByRole("button", {
+        name: /SOL-UNICA-2026-001/,
+      }),
+    );
+
+    expect(navegacionMock.push).toHaveBeenCalledWith(
+      "/mis-tramites/SOL-UNICA-2026-001",
+    );
   });
 
   it("cierra sesión y vuelve a ingresar al Campus Virtual", async () => {

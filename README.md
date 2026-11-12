@@ -14,7 +14,37 @@ npm run dev
 ```
 
 Abrir <http://localhost:3000> o la ruta del módulo:
+<http://localhost:3000/mis-tramites>. La ruta institucional equivalente es
 <http://localhost:3000/campusvirtual/mis-tramites>.
+
+### Rutas por trámite y simulación de estados
+
+Cada trámite tiene una URL propia:
+
+```text
+/mis-tramites/SOL-UNICA-2026-001
+/mis-tramites/SOL-UNICA-2026-003
+/mis-tramites/SOL-UNICA-2026-004
+/mis-tramites/SOL-UNICA-2026-005
+```
+
+También están disponibles bajo el prefijo del Campus Virtual, por ejemplo
+`/campusvirtual/mis-tramites/SOL-UNICA-2026-001`.
+
+El query param `STATUS` permite forzar el estado únicamente en una ruta por
+trámite. Acepta el valor con o sin comillas, en mayúsculas o minúsculas:
+
+```text
+/mis-tramites/SOL-UNICA-2026-001?STATUS=FINALIZADO
+/mis-tramites/SOL-UNICA-2026-003?STATUS="FIRMA_DIGITAL"
+/mis-tramites/SOL-UNICA-2026-004?STATUS=PENDIENTE_DOCUMENTOS
+```
+
+Valores admitidos: `EN_EVALUACION`, `PENDIENTE_DOCUMENTOS`, `FIRMA_DIGITAL` y
+`FINALIZADO`. También se aceptan alias como `EN_PROCESO`, `EN EVALUACIÓN`,
+`PENDIENTE DE DOCUMENTOS`, `FIRMA` y `LISTO_PARA_ENTREGA`. La interfaz muestra
+un aviso de **Modo demo** y un enlace para ver el estado real. Un valor inválido
+no altera el trámite.
 
 La sesión activa simulada es:
 
@@ -106,7 +136,12 @@ clic, buscar por tipo y activar/desactivar la caída simulada del servicio.
 ```text
 src/
 ├── app/
-│   ├── campusvirtual/mis-tramites/page.tsx  # Ruta protegida del módulo
+│   ├── mis-tramites/
+│   │   ├── page.tsx                     # Listado de trámites
+│   │   └── [codigo]/page.tsx            # Ruta directa por trámite
+│   ├── campusvirtual/mis-tramites/
+│   │   ├── page.tsx                     # Alias institucional del listado
+│   │   └── [codigo]/page.tsx            # Alias institucional por trámite
 │   ├── globals.css        # Tokens UNICA, fondo y animaciones
 │   ├── layout.tsx         # Metadatos, tipografía Inter y layout raíz
 │   └── page.tsx           # Entrada de demostración del Campus Virtual
@@ -171,17 +206,18 @@ npx tsc --noEmit   # Verificación de tipos
 ## Pruebas automatizadas
 
 ```text
-Test Files  5 passed (5)
-Tests       54 passed (54)
+Test Files  6 passed (6)
+Tests       67 passed (67)
 ```
 
 | Archivo | Cobertura |
 | --- | --- |
+| `src/lib/estados.test.ts` | Parseo de `STATUS`, alias de estados y coherencia del estado simulado |
 | `src/lib/format.test.ts` | Fecha completa y compacta de HU-04, tiempo relativo y tamaños |
 | `src/lib/timeline.test.ts` | Cuatro fases, estado actual, firma digital y porcentajes |
 | `src/lib/mock-api.test.ts` | Listado propio, búsqueda por tipo, 403, 404, 500, persistencia y subsanación |
 | `src/store/useSeguimientoStore.test.ts` | Sesión, listado, filtros, selección, validaciones, progreso y cierre de sesión |
-| `src/components/seguimiento-app.test.tsx` | Integración UI: listado, 403, 404, 500, carga, entrega y login/logout |
+| `src/components/seguimiento-app.test.tsx` | Integración UI: rutas por trámite, `STATUS`, listado, 403, 404, 500, carga, entrega y login/logout |
 
 ## Sprint y Kanban
 

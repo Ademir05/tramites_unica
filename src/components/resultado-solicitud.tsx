@@ -13,13 +13,19 @@ import { useSeguimientoStore } from "@/store/useSeguimientoStore";
 
 interface ResultadoSolicitudProps {
   solicitud: SolicitudUNICA;
+  onVolver?: () => void;
 }
 
-export function ResultadoSolicitud({ solicitud }: ResultadoSolicitudProps) {
+export function ResultadoSolicitud({
+  solicitud,
+  onVolver,
+}: ResultadoSolicitudProps) {
   const volverALista = useSeguimientoStore((state) => state.volverALista);
   const subsanacionEnviada = useSeguimientoStore(
     (state) => state.subsanacionEnviada,
   );
+
+  const manejarVolver = onVolver ?? volverALista;
 
   const mostrarDocumentos =
     solicitud.estado === "PENDIENTE_DOCUMENTOS" ||
@@ -41,7 +47,7 @@ export function ResultadoSolicitud({ solicitud }: ResultadoSolicitudProps) {
           type="button"
           variant="outline"
           size="sm"
-          onClick={volverALista}
+          onClick={manejarVolver}
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
           Volver a la lista

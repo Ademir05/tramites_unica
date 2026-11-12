@@ -11,7 +11,8 @@ npm install
 npm run dev
 ```
 
-Abrir <http://localhost:3000> o <http://localhost:3000/campusvirtual/mis-tramites>.
+Abrir <http://localhost:3000/mis-tramites> o la ruta institucional
+<http://localhost:3000/campusvirtual/mis-tramites>.
 
 Sesión simulada:
 
@@ -123,6 +124,24 @@ npm start
 4. Presionar **Ingresar con Campus Virtual UNICA** y comprobar que se restaura
    la sesión y el listado propio.
 
+### Escenario 10 · Rutas por trámite y simulación con `STATUS`
+
+1. Abrir directamente
+   `http://localhost:3000/mis-tramites/SOL-UNICA-2026-001`.
+2. Verificar que se muestra el detalle del trámite, sin el formulario de
+   búsqueda, y que el botón **Volver a la lista** regresa a `/mis-tramites`.
+3. Abrir
+   `http://localhost:3000/mis-tramites/SOL-UNICA-2026-001?STATUS=FINALIZADO`.
+4. Verificar el aviso **Modo demo**, el badge **Finalizado**, el stepper al
+   **100%** y el panel de entrega.
+5. Abrir
+   `http://localhost:3000/mis-tramites/SOL-UNICA-2026-003?STATUS="FIRMA_DIGITAL"`.
+6. Verificar que el estado mostrado es **Firma Digital** y que el enlace
+   **Ver estado real** elimina la simulación.
+7. Probar `?STATUS=NO_EXISTE` y comprobar el aviso de valor inválido.
+8. Verificar que las rutas equivalentes bajo
+   `/campusvirtual/mis-tramites/{codigo}` también funcionan.
+
 ## 3. Matriz de evidencias
 
 | Criterio | Verificación manual | Prueba automatizada |
@@ -138,12 +157,14 @@ npm start
 | Entrega finalizada | Escenario 8 | integración UI |
 | Cierre y restauración de sesión | Escenario 9 | `useSeguimientoStore.test.ts`; integración UI |
 | Búsqueda por tipo | Escenario 9 | `mock-api.test.ts`; integración UI |
+| Rutas por trámite | Escenario 10 | `seguimiento-app.test.tsx` · «abre una ruta por trámite…»; build de Next.js |
+| Simulación `STATUS` | Escenario 10 | `estados.test.ts`; integración UI |
 
 Ejecución de la suite:
 
 ```text
-Test Files  5 passed (5)
-Tests       54 passed (54)
+Test Files  6 passed (6)
+Tests       67 passed (67)
 ```
 
 Comandos de verificación:
@@ -179,7 +200,7 @@ Métricas de flujo del prototipo:
 | Aislamiento por `estudianteId` | Filtro de API, store y pruebas de 403 | Cumplido |
 | Respuesta a acceso no autorizado | Pantalla **Acceso restringido** con mensaje exacto | Cumplido |
 | Código integrado y libre de errores críticos | `npm run build`, `npm run lint`, `npx tsc --noEmit` | Cumplido |
-| Criterios Dado/Cuando/Entonces verificados | 54 pruebas automatizadas + guion manual | Cumplido |
+| Criterios Dado/Cuando/Entonces verificados | 67 pruebas automatizadas + guion manual | Cumplido |
 | Casos exitoso, inexistente, 403 y error 500 | Panel de pruebas + suite de API/UI | Cumplido |
 | Evidencia lista para Sprint Review | Este documento + demo interactiva | Cumplido |
 
