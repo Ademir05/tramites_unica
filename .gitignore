@@ -1,6 +1,7 @@
 # Entorno
 node_modules
 .next
+.vercel
 out
 build
 coverage

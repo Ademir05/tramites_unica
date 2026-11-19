@@ -24,9 +24,16 @@ export function EntregaPanel({ solicitud }: EntregaPanelProps) {
   const sesion = useSeguimientoStore((state) => state.sesion);
 
   const descargar = () => {
+    const marcaDemo = "*** DEMO · SIN VALIDEZ OFICIAL ***";
     const contenido = [
+      marcaDemo,
       "CONSTANCIA ACADÉMICA · CAMPUS VIRTUAL UNICA",
       "DOCUMENTO DE DEMOSTRACIÓN",
+      "================================================",
+      "",
+      "AVISO: este archivo se genera desde un prototipo académico.",
+      "No constituye una constancia oficial ni un documento emitido por la UNICA.",
+      "",
       "================================================",
       "",
       `Código de solicitud: ${solicitud.codigoSolicitud}`,
@@ -40,6 +47,8 @@ export function EntregaPanel({ solicitud }: EntregaPanelProps) {
       "Este documento es ficticio y forma parte del prototipo de",
       "Seguimiento de Trámites Académicos de la UNICA.",
       "No tiene validez oficial.",
+      "",
+      marcaDemo,
     ].join("\n");
 
     const blob = new Blob([contenido], {

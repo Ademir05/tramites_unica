@@ -246,6 +246,44 @@ historia y edad de elemento `0` para los elementos terminados.
   ficticios.
 - [x] Evidencia demostrable en [`docs/sprint-review.md`](docs/sprint-review.md).
 
+## Despliegue en Vercel
+
+El proyecto está listo para desplegarse como aplicación Next.js en Vercel.
+
+### Desde el dashboard
+
+1. Importar el repositorio en Vercel.
+2. Mantener el framework detectado: **Next.js**.
+3. Usar los comandos definidos en `vercel.json`:
+   - Install: `npm ci`
+   - Build: `npm run build`
+4. No se requieren variables de entorno.
+5. Desplegar. Las rutas dinámicas y `/robots.txt` se generan automáticamente.
+
+### Desde la CLI
+
+```bash
+npm install -g vercel
+vercel
+vercel --prod
+```
+
+### Configuración incluida
+
+- `vercel.json` fija el framework y los comandos de instalación/compilación.
+- `package.json` declara compatibilidad con Node.js `>=20.9.0`.
+- `next.config.ts` desactiva `X-Powered-By` y agrega cabeceras de seguridad:
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` y
+  `Permissions-Policy`.
+- `src/app/robots.ts` publica `robots.txt` con `Disallow: /` para evitar
+  indexación del prototipo.
+- Los metadatos incluyen `robots: noindex, nofollow`.
+
+> **Importante:** al ser un prototipo, la sesión, los datos y la carga de
+> archivos son simulados en el navegador. Vercel no ejecuta un backend real y
+> los cambios en memoria se reinician al recargar la página. No usar con datos
+> personales reales.
+
 ## Limitaciones del prototipo
 
 - Los datos viven en memoria: recargar la página restaura la base ficticia.

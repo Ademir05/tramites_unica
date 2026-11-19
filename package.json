@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Prototipo de alta fidelidad para el Seguimiento de Trámites Académicos (HU-01 a HU-04)",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

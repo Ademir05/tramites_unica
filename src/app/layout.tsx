@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description:
     "Consulta el estado de tus trámites académicos en la UNICA, el área responsable, los documentos pendientes y la última actualización de tu solicitud.",
   applicationName: "Campus Virtual UNICA",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export const viewport: Viewport = {
